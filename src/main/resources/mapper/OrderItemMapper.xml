@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Mon Oct 31 14:45:44 CST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.elvis.wang.dal.dao.OrderItemMapper">
+	<resultMap id="BaseResultMap" type="org.elvis.wang.model.OrderItem">
+		<result column="ITEM_ID" property="itemId" jdbcType="INTEGER" />
+		<result column="ORDER_ID" property="orderId" jdbcType="INTEGER" />
+		<result column="USER_ID" property="userId" jdbcType="INTEGER" />
+		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		ITEM_ID,ORDER_ID, USER_ID, CREATE_TIME, UPDATE_TIME
+	</sql>
+
+	<insert id="insert" parameterType="org.elvis.wang.model.Order">
+		INSERT INTO T_ORDER_ITEM(ITEM_ID,ORDER_ID, USER_ID, CREATE_TIME, UPDATE_TIME)
+		VALUES(#{itemId},#{orderId},#{userId},#{createTime},#{updateTime})
+	</insert>
+
+	<select id="findById" parameterType="int" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM T_ORDER_ITEM
+		WHERE ITEM_ID=#{itemId}
+	</select>
+
+	<update id="update" parameterType="org.elvis.wang.model.OrderItem">
+		update T_ORDER_ITEM
+		<set>
+			<if test="userId != null">
+				USER_ID = #{userId,jdbcType=BIGINT},
+			</if>
+			<if test="orderId != null">
+				ORDER_ID = #{orderId,jdbcType=BIGINT},
+			</if>
+			UPDATE_TIME = sysdate
+		</set>
+		WHERE ITEM_ID = #{itemId}
+	</update>
+
+	<select id="findList" parameterType="org.elvis.wang.model.OrderItem" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM T_ORDER_ITEM
+		<where>
+			<if test="itemId != null and itemId != ''"  >
+				ITEM_ID = #{itemId}
+			</if>
+			<if test="orderId != null and orderId != ''"  >
+				AND ORDER_ID = #{orderId}
+			</if>
+			<if test="userId != null and userId != ''"  >
+				OR USER_ID = #{userId}
+			</if>
+			<if test="startTime != null and endTime != null"  >
+				AND CREATE_TIME BETWEEN <![CDATA[#{startTime,jdbcType=TIMESTAMP} and #{endTime,jdbcType=TIMESTAMP}]]>
+			</if>
+		</where>
+		ORDER BY CREATE_TIME DESC
+	</select>
+
+	<insert id="batchInsert" parameterType="java.util.List">
+		INSERT INTO T_ORDER_ITEM
+		(ITEM_ID,ORDER_ID, USER_ID, CREATE_TIME, UPDATE_TIME)
+		VALUES
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.itemId},#{item.orderId},#{item.userId},#{item.createTime},#{item.updateTime}
+			)
+		</foreach>
+	</insert>
+
+	<update id="batchUpdate" parameterType="java.util.List">
+		UPDATE T_ORDER_ITEM
+		SET USER_ID = 0
+		WHERE ITEM_ID IN
+		(
+		<foreach collection="list" item="item" index="index" separator=",">
+			#{item.itemId}
+		</foreach>
+		)
+	</update>
+
+</mapper>

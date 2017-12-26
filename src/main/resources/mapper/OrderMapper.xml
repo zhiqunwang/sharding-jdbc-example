@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Mon Oct 31 14:45:44 CST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.elvis.wang.dal.dao.OrderMapper">
+	<resultMap id="BaseResultMap" type="org.elvis.wang.model.Order">
+		<result column="ORDER_ID" property="orderId" jdbcType="INTEGER" />
+		<result column="USER_ID" property="userId" jdbcType="INTEGER" />
+		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		ORDER_ID, USER_ID, CREATE_TIME, UPDATE_TIME
+	</sql>
+
+	<insert id="insert" parameterType="org.elvis.wang.model.Order">
+		INSERT INTO T_ORDER(ORDER_ID, USER_ID, CREATE_TIME, UPDATE_TIME)
+		VALUES(#{orderId},#{userId},#{createTime},#{updateTime})
+	</insert>
+
+	<select id="findById" parameterType="int" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM T_ORDER
+		WHERE ORDER_ID=#{orderId}
+	</select>
+
+	<update id="update" parameterType="org.elvis.wang.model.Order">
+		update T_ORDER
+		<set>
+			<if test="userId != null">
+				USER_ID = #{userId,jdbcType=BIGINT},
+			</if>
+			UPDATE_TIME = sysdate
+		</set>
+		WHERE ORDER_ID = #{orderId}
+	</update>
+
+
+	<insert id="batchInsert" parameterType="java.util.List">
+		INSERT INTO T_ORDER
+		T_ORDER(ORDER_ID, USER_ID, CREATE_TIME, UPDATE_TIME)
+		VALUES
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.orderId},#{item.userId},#{item.createTime},#{item.updateTime}
+			)
+		</foreach>
+	</insert>
+
+	<update id="batchUpdate" parameterType="java.util.List">
+		UPDATE T_ORDER
+		SET USER_ID = 0
+		WHERE ORDER_ID IN
+		(
+		<foreach collection="list" item="item" index="index" separator=",">
+			#{item.orderId}
+		</foreach>
+		)
+	</update>
+
+	<select id="findList" parameterType="org.elvis.wang.model.Order" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM T_ORDER
+		<where>
+			<if test="orderId != null and orderId != ''"  >
+				ORDER_ID = #{orderId}
+			</if>
+			<if test="userId != null and userId != ''"  >
+				OR USER_ID = #{userId}
+			</if>
+			<if test="startTime != null and endTime != null"  >
+				AND CREATE_TIME BETWEEN <![CDATA[#{startTime,jdbcType=TIMESTAMP} and #{endTime,jdbcType=TIMESTAMP}]]>
+			</if>
+		</where>
+		ORDER BY CREATE_TIME DESC
+	</select>
+
+	<select id="findListByPage" parameterType="org.elvis.wang.model.Order" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM T_ORDER
+		<where>
+			<if test="orderId != null and orderId != ''"  >
+				ORDER_ID = #{orderId}
+			</if>
+			<if test="userId != null and userId != ''"  >
+				AND USER_ID = #{userId}
+			</if>
+			<if test="startTime != null and endTime != null"  >
+				AND CREATE_TIME BETWEEN <![CDATA[#{startTime,jdbcType=TIMESTAMP} and #{endTime,jdbcType=TIMESTAMP}]]>
+			</if>
+		</where>
+		ORDER BY CREATE_TIME DESC
+	</select>
+
+	<select id="findListByPage_COUNT" parameterType="org.elvis.wang.model.Order" resultType="java.lang.Integer">
+		SELECT
+		count(1)
+		FROM T_ORDER
+		<where>
+			<if test="orderId != null and orderId != ''"  >
+				ORDER_ID = #{orderId}
+			</if>
+			<if test="userId != null and userId != ''"  >
+				AND USER_ID = #{userId}
+			</if>
+			<if test="startTime != null and endTime != null"  >
+				AND CREATE_TIME BETWEEN <![CDATA[#{startTime,jdbcType=TIMESTAMP} and #{endTime,jdbcType=TIMESTAMP}]]>
+			</if>
+		</where>
+	</select>
+
+
+</mapper>
